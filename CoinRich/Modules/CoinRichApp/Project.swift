@@ -9,4 +9,4 @@ import Foundation
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project.framework(.Presenter)
+let project = Project.app(.CoinRichApp)

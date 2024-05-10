@@ -8,9 +8,7 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let projects: [Path] = ModuleType.allCases.map { moduleType in
-    "CoinRich/Sources/\(moduleType.rawValue)"
-}
+let projects: [Path] = ModuleType.allCases.map { $0.path }
 
 let workspace = Workspace(
     name: "CoinRich",
