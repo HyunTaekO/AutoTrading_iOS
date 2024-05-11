@@ -56,7 +56,9 @@ public extension ModuleType {
             ]
         case .UpbitAPIService:
             return [
-                .external(name: "RxSwift")
+                .external(name: "RxSwift"),
+                .external(name: "SwiftJWT"),
+                .external(name: "Alamofire")
             ]
         }
     }
@@ -67,8 +69,8 @@ let infoPlist: [String: Plist.Value] = [
     "CFBundleVersion": "1",
     "UIMainStoryboardFile": "",
     "UILaunchStoryboardName": "LaunchScreen",
-    "UpbitSecretKey": "UPBIT_API_SECRET_KEY",
-    "UpbitAccessKey": "UPBIT_API_ACCESS_KEY"
+    "UpbitSecretKey": "$(UPBIT_API_SECRET_KEY)",
+    "UpbitAccessKey": "$(UPBIT_API_ACCESS_KEY)"
 ]
 
 public extension Project {
@@ -86,16 +88,16 @@ public extension Project {
         let name = type.rawValue
         
         let dependencies = type.dependencies
-        var target = type == .UpbitAPIService ? apiFramework(name: name, destinations: .iOS) : makeFrameworkTargets(name: name, destinations: .iOS)
-        target.dependencies = dependencies
+        let targets = type == .UpbitAPIService ? apiFramework(name: name, destinations: .iOS, dependencies: dependencies) : makeFrameworkTargets(name: name, destinations: .iOS, dependencies: dependencies)
+       
         return Project(name: name,
                        organizationName: "CoinRichHt.com",
-                       targets: [target])
+                       targets: targets)
     }
     
     // MARK: - Private
     
-    private static func makeFrameworkTargets(name: String, destinations: Destinations) -> Target {
+    private static func makeFrameworkTargets(name: String, destinations: Destinations, dependencies: [TargetDependency]) -> [Target] {
         let sources = Target(name: name,
                            destinations: .iOS,
                            product: .framework,
@@ -103,36 +105,48 @@ public extension Project {
                            infoPlist: .extendingDefault(with: infoPlist),
                            sources: ["Sources/**"],
                            resources: [],
-                           dependencies: []
+                           dependencies: dependencies
                       )
         
-//        let tests = Target(name: "\(name)Tests",
-//                           destinations: destinations,
-//                           product: .unitTests,
-//                           bundleId: "com.ht.\(name)Tests",
-//                           infoPlist: .default,
-//                           sources: ["Targets/\(name)/Tests/**"],
-//                           resources: [],
-//                           dependencies: [.target(name: name)])
-        return sources
+        let tests = Target(name: "\(name)Tests",
+                           destinations: destinations,
+                           product: .unitTests,
+                           bundleId: "com.ht.\(name)Tests",
+                           infoPlist: .extendingDefault(with: infoPlist),
+                           sources: ["Tests/**"],
+                           resources: [],
+                           dependencies: [.target(name: name)])
+        return [sources, tests]
     }
     
-    private static func apiFramework(name: String, destinations: Destinations) -> Target {
-        let source = Target(name: name,
+    private static func apiFramework(name: String, destinations: Destinations, dependencies: [TargetDependency]) -> [Target] {
+        let sources = Target(name: name,
                             destinations: .iOS,
                             product: .framework,
                             bundleId: "com.ht.CoinRichHt\(name)",
                             infoPlist: .extendingDefault(with: infoPlist),
                             sources: ["Sources/**"],
                             resources: [],
-                            dependencies: [],
+                            dependencies: dependencies,
                             settings: .settings(configurations: [
-                                .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/Secrets.xcconfig")),
-                                .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/Secrets.xcconfig"))
+                                .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig")),
+                                .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig"))
                             ])
         )
-        
-        return source
+        let tests = Target(name: "\(name)Tests",
+                           destinations: destinations,
+                           product: .unitTests,
+                           bundleId: "com.ht.\(name)Tests",
+                           infoPlist: .extendingDefault(with: infoPlist),
+                           sources: ["Tests/**"],
+                           resources: [],
+                           dependencies: [.target(name: name)],
+                           settings: .settings(configurations: [
+                            .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig")),
+                            .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig"))
+                           ])
+        )
+        return [sources, tests]
     }
     
     private static func makeAppTargets(name: String, destinations: Destinations, dependencies: [TargetDependency]) -> [Target] {
