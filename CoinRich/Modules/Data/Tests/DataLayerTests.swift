@@ -13,32 +13,31 @@ import RxSwift
 final class DataLayerTests: XCTestCase {
 
     private var upbitService: DefaultUpbitService!
-    
+    private var disposeBag = DisposeBag()
     override func setUpWithError() throws {
         try super.setUpWithError()
-        upbitService = DefaultUpbitService()
+        upbitService = DefaultUpbitService(diposeBag: disposeBag)
     }
 
-    func test_upbitAccess_success() {
+    func test_getAccounts_success() {
         // Given
-//        let expectation = XCTestExpectation(description: "UpbitAPI Access Test")
-//        let single = upbitService.get(.exchange(.asset(.allAccounts)),
-//                                      query: nil
-//                     )
-//        var receivedValue: Alamofire.AFDataResponse<Data>? = nil
-//       
-//       
-//            
-//        // When
-//        single.subscribe(onSuccess: { value in
-//            receivedValue = value
-//            expectation.fulfill()
-//        })
-//        .dispose()
-//
-//        // Then
-//        wait(for: [expectation], timeout: 2.0) // expectation을 기다려서 timeout 내에 fulfill이 되는지 확인
-//        XCTAssertEqual("", nil) // 예상한 결과와 일치하는지 확인
+        let expectation = XCTestExpectation(description: "UpbitAPI Access Test")
+        let single = upbitService.getAccounts()
+        var receivedValue: UpbitAccounts? = nil
+       
+        // When
+        single.subscribe(onSuccess: { value in
+            receivedValue = value
+            Logger.print(value)
+            expectation.fulfill()
+        }, onFailure: {error in
+            print("error", error)
+        })
+        .disposed(by: self.disposeBag)
+        
+        // Then
+        wait(for: [expectation], timeout: 3.0) // expectation을 기다려서 timeout 내에 fulfill이 되는지 확인
+        XCTAssertEqual("", nil) // 예상한 결과와 일치하는지 확인
 
     }
 

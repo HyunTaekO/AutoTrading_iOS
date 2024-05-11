@@ -9,8 +9,8 @@ import Foundation
 extension Bundle {
     
     var upbitSecretKey: String? {
-        let bundle = Bundle(identifier: "com.ht.UpbitAPIServiceTests")
-        
+        let bundle = Bundle(identifier: "com.ht.DataTests")
+
         guard let resource = bundle?.infoDictionary
         else {
             fatalError("⛔️ File을 찾는데 실패하였습니다.")
@@ -22,8 +22,8 @@ extension Bundle {
     }
     
     var upbitAccessKey: String? {
-        let bundle = Bundle(identifier: "com.ht.UpbitAPIServiceTests")
-        
+        let bundle = Bundle(identifier: "com.ht.DataTests")
+
         guard let resource = bundle?.infoDictionary
         else {
             fatalError("⛔️ File을 찾는데 실패하였습니다.")

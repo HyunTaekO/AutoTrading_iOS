@@ -14,13 +14,12 @@ final class DefaultUpbitNetworkService: UpbitNetworkService {
     let accessKey = Bundle.main.upbitAccessKey ?? ""
     let secretKey = Bundle.main.upbitSecretKey ?? ""
     
-    func get(_ api: UpbitAPI, query parameter: [String : String]?) -> RxSwift.Single<Alamofire.AFDataResponse<Data>> {
+    func get(_ api: UpbitAPI, query parameter: [String : String]? = nil) -> Single<AFDataResponse<Data>> {
         return Single.create { [weak self] single in
             guard let self = self else { return Disposables.create() }
             var components = URLComponents()
             components.queryItems = parameter?.map { URLQueryItem(name: $0, value: $1)}
             let queryHashAlg = components.query?.digest(using: .sha512) ?? ""
-            
             var jwt: JWT<UpbitPayload>?
             if self.accessKey != "" {
                 jwt = JWT(claims: UpbitPayload(access_key: self.accessKey,
@@ -30,7 +29,7 @@ final class DefaultUpbitNetworkService: UpbitNetworkService {
             }
             var headers = HTTPHeaders()
             
-
+  
             if self.secretKey != "", let secret = self.secretKey.data(using: .utf8),
                var jwt = jwt, let signedJWT = try? jwt.sign(using: .hs256(key: secret)) {
                 let authenticationToken = "Bearer " + signedJWT
@@ -45,16 +44,32 @@ final class DefaultUpbitNetworkService: UpbitNetworkService {
         }
     }
     
-    func get(_ api: UpbitAPI, query parameter: [String : String], arrayQuery arrayParameter: [String : [String]]) -> RxSwift.Single<Alamofire.AFDataResponse<Data>> {
-        <#code#>
+    func get(_ api: UpbitAPI, query parameter: [String : String], arrayQuery arrayParameter: [String : [String]]) -> Single<Alamofire.AFDataResponse<Data>> {
+        return Single.create{ a in
+            return Disposables.create()
+        }
     }
     
     func post(_ api: UpbitAPI, body parameter: [String : String]) -> RxSwift.Single<Alamofire.AFDataResponse<Data>> {
-        <#code#>
+        return Single.create{ a in
+            return Disposables.create()
+        }
     }
     
     func delete(_ api: UpbitAPI, query parameter: [String : String]?) -> RxSwift.Single<Alamofire.AFDataResponse<Data>> {
-        <#code#>
+        return Single.create{ a in
+            return Disposables.create()
+        }
     }
     
+}
+
+public enum Logger {
+    static func print(_ items: Any) {
+            #if DEBUG
+            Swift.print("🟢🟢")
+            Swift.print("🟢🟢", items)
+            Swift.print("🟢🟢")
+            #endif
+        }
 }
