@@ -6,23 +6,40 @@
 //
 
 import XCTest
+@testable import Data
+import Alamofire
+import RxSwift
 
 final class DataLayerTests: XCTestCase {
 
+    private var upbitService: DefaultUpbitService!
+    
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        try super.setUpWithError()
+        upbitService = DefaultUpbitService()
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+    func test_upbitAccess_success() {
+        // Given
+//        let expectation = XCTestExpectation(description: "UpbitAPI Access Test")
+//        let single = upbitService.get(.exchange(.asset(.allAccounts)),
+//                                      query: nil
+//                     )
+//        var receivedValue: Alamofire.AFDataResponse<Data>? = nil
+//       
+//       
+//            
+//        // When
+//        single.subscribe(onSuccess: { value in
+//            receivedValue = value
+//            expectation.fulfill()
+//        })
+//        .dispose()
+//
+//        // Then
+//        wait(for: [expectation], timeout: 2.0) // expectation을 기다려서 timeout 내에 fulfill이 되는지 확인
+//        XCTAssertEqual("", nil) // 예상한 결과와 일치하는지 확인
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
     }
 
     func testPerformanceExample() throws {
@@ -30,6 +47,11 @@ final class DataLayerTests: XCTestCase {
         self.measure {
             // Put the code you want to measure the time of here.
         }
+    }
+    
+    override func tearDownWithError() throws {
+        upbitService = nil
+        try super.tearDownWithError()
     }
 
 }

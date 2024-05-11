@@ -7,7 +7,6 @@ public enum ModuleType: String, CaseIterable {
     case Wallet
     case RealTrading
     case Simulater
-    case UpbitAPIService
     
     public var path: Path {
         switch self {
@@ -32,8 +31,9 @@ public extension ModuleType {
         case .Data:
             return [
                 .with(.Domain),
-                .with(.UpbitAPIService),
-                .external(name: "RxSwift")
+                .external(name: "RxSwift"),
+                .external(name: "SwiftJWT"),
+                .external(name: "Alamofire")
             ]
         case .Domain:
             return [
@@ -53,12 +53,6 @@ public extension ModuleType {
             return [
                 .with(.Domain),
                 .external(name: "RxSwift")
-            ]
-        case .UpbitAPIService:
-            return [
-                .external(name: "RxSwift"),
-                .external(name: "SwiftJWT"),
-                .external(name: "Alamofire")
             ]
         }
     }
@@ -88,7 +82,7 @@ public extension Project {
         let name = type.rawValue
         
         let dependencies = type.dependencies
-        let targets = type == .UpbitAPIService ? apiFramework(name: name, destinations: .iOS, dependencies: dependencies) : makeFrameworkTargets(name: name, destinations: .iOS, dependencies: dependencies)
+        let targets = type == .Data ? apiFramework(name: name, destinations: .iOS, dependencies: dependencies) : makeFrameworkTargets(name: name, destinations: .iOS, dependencies: dependencies)
        
         return Project(name: name,
                        organizationName: "CoinRichHt.com",
@@ -129,8 +123,8 @@ public extension Project {
                             resources: [],
                             dependencies: dependencies,
                             settings: .settings(configurations: [
-                                .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig")),
-                                .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig"))
+                                .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig")),
+                                .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig"))
                             ])
         )
         let tests = Target(name: "\(name)Tests",
@@ -142,8 +136,8 @@ public extension Project {
                            resources: [],
                            dependencies: [.target(name: name)],
                            settings: .settings(configurations: [
-                            .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig")),
-                            .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/APIKey/Secrets.xcconfig"))
+                            .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig")),
+                            .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig"))
                            ])
         )
         return [sources, tests]
@@ -161,17 +155,6 @@ public extension Project {
             resources: [],
             dependencies: dependencies
         )
-        
-//        let testTarget = Target(
-//            name: "\(name)Tests",
-//            destinations: destinations,
-//            product: .unitTests,
-//            bundleId: "com.ht.\(name)Tests",
-//            infoPlist: .default,
-//            sources: ["Targets/\(name)/Tests/**"],
-//            dependencies: [
-//                .target(name: "\(name)")
-//            ])
         return [mainTarget]
     }
     
