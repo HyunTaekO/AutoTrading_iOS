@@ -66,7 +66,9 @@ let infoPlist: [String: Plist.Value] = [
     "CFBundleShortVersionString": "1.0",
     "CFBundleVersion": "1",
     "UIMainStoryboardFile": "",
-    "UILaunchStoryboardName": "LaunchScreen"
+    "UILaunchStoryboardName": "LaunchScreen",
+    "UpbitSecretKey": "UPBIT_API_SECRET_KEY",
+    "UpbitAccessKey": "UPBIT_API_ACCESS_KEY"
 ]
 
 public extension Project {
@@ -74,7 +76,7 @@ public extension Project {
     static func app(_ type: ModuleType) -> Project {
         let name = type.rawValue
         let dependencies = type.dependencies
-        var target = makeAppTargets(name: name, destinations: .iOS, dependencies: dependencies)
+        let target = makeAppTargets(name: name, destinations: .iOS, dependencies: dependencies)
         return Project(name: name,
                        organizationName: "CoinRichHt.com",
                        targets: target)
@@ -84,7 +86,7 @@ public extension Project {
         let name = type.rawValue
         
         let dependencies = type.dependencies
-        var target = makeFrameworkTargets(name: name, destinations: .iOS)
+        var target = type == .UpbitAPIService ? apiFramework(name: name, destinations: .iOS) : makeFrameworkTargets(name: name, destinations: .iOS)
         target.dependencies = dependencies
         return Project(name: name,
                        organizationName: "CoinRichHt.com",
@@ -113,6 +115,24 @@ public extension Project {
 //                           resources: [],
 //                           dependencies: [.target(name: name)])
         return sources
+    }
+    
+    private static func apiFramework(name: String, destinations: Destinations) -> Target {
+        let source = Target(name: name,
+                            destinations: .iOS,
+                            product: .framework,
+                            bundleId: "com.ht.CoinRichHt\(name)",
+                            infoPlist: .extendingDefault(with: infoPlist),
+                            sources: ["Sources/**"],
+                            resources: [],
+                            dependencies: [],
+                            settings: .settings(configurations: [
+                                .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/Secrets.xcconfig")),
+                                .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/UpbitAPIService/Sources/Secrets.xcconfig"))
+                            ])
+        )
+        
+        return source
     }
     
     private static func makeAppTargets(name: String, destinations: Destinations, dependencies: [TargetDependency]) -> [Target] {
