@@ -38,7 +38,11 @@ final class DefaultUpbitNetworkService: UpbitNetworkService {
             
             AF.request(api.baseURL + api.path, parameters: parameter, headers: headers)
                 .responseData { response in
-                    single(.success(response))
+                    if let error = response.error {
+                        single(.failure(error))
+                    }else {
+                        single(.success(response))
+                    }
                 }
             return Disposables.create()
         }

@@ -11,34 +11,25 @@ import RxSwift
 
 public final class DefaultUpbitService: UpbitService {
     
-    var diposeBag: DisposeBag
+    var networkService: UpbitNetworkService
+    let diposeBag: DisposeBag = DisposeBag()
     
-    init(diposeBag: DisposeBag) 
-    {
-        self.diposeBag = diposeBag
+    init(networkService: UpbitNetworkService) {
+        self.networkService = networkService
     }
     
-    let networkService = DefaultUpbitNetworkService()
-    
-    public func getAccounts() -> Single<UpbitAccounts?> {
-        
-        return Single.create{ [weak self] single in
-            guard let self = self else { return Disposables.create() }
-            
-            self.networkService.get(.exchange(.asset(.allAccounts)))
-                .subscribe(onSuccess: { response in
-                    switch response.result {
-                    case .success(let data):
-                        single(.success(try? UpbitAccounts(data: data)))
-                    case .failure(let error):
-                        single(.failure(error))
-                    }
-                })
-                .disposed(by: self.diposeBag)
-            
-            return Disposables.create()
-        }
-        
+    public func getAccounts() -> Observable<UpbitAccounts?> {
+        return self.networkService.get(.exchange(.asset(.allAccounts)), query: nil)
+            .map { response in
+                switch response.result {
+                case .success(let data):
+                    return try? UpbitAccounts(data: data)
+                case .failure(let error):
+                    Logger.print(error)
+                    return nil
+                }
+            }
+            .asObservable()
     }
-
+    
 }

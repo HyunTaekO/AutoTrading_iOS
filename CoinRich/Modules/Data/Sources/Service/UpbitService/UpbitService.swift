@@ -13,7 +13,7 @@ public protocol UpbitService {
         
     // MARK: ExchangeAPI - Asset
     // 전체 계좌조회
-    func getAccounts() -> Single<UpbitAccounts?>
+    func getAccounts() -> Observable<UpbitAccounts?>
     
 }
 
