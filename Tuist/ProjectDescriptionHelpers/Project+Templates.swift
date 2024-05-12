@@ -20,6 +20,13 @@ public enum ModuleType: String, CaseIterable {
 
 public extension ModuleType {
     var dependencies: [TargetDependency] {
+        let commonDependency: [TargetDependency] = [
+            .external(name: "RxSwift"),
+            .external(name: "RxBlocking"),
+            .external(name: "RxCocoa"),
+            .external(name: "RxRelay"),
+            .external(name: "RxTest"),
+        ]
         switch self {
         case .CoinRichApp:
             return [
@@ -31,29 +38,23 @@ public extension ModuleType {
         case .Data:
             return [
                 .with(.Domain),
-                .external(name: "RxSwift"),
                 .external(name: "SwiftJWT"),
-                .external(name: "Alamofire")
+                .external(name: "Alamofire"),
             ]
         case .Domain:
-            return [
-                .external(name: "RxSwift")
-            ]
+            return commonDependency
         case .Wallet:
             return [
                 .with(.Domain),
-                .external(name: "RxSwift")
-            ]
+            ] + commonDependency
         case .RealTrading:
             return [
                 .with(.Domain),
-                .external(name: "RxSwift")
-            ]
+            ] + commonDependency
         case .Simulater:
             return [
                 .with(.Domain),
-                .external(name: "RxSwift")
-            ]
+            ] + commonDependency
         }
     }
 }
