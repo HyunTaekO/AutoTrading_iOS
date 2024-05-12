@@ -8,6 +8,7 @@ import Foundation
 import Alamofire
 import SwiftJWT
 import RxSwift
+import Utils
 
 final class DefaultUpbitNetworkService: UpbitNetworkService {
     
@@ -48,7 +49,6 @@ final class DefaultUpbitNetworkService: UpbitNetworkService {
                     if let error = response.error {
                         single(.failure(error))
                     }else {
-                        Logger.print(try? UpbitAccounts(data: response.data!))
                         single(.success(response))
                     }
                 }

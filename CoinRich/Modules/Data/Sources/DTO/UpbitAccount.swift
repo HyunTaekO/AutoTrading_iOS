@@ -22,32 +22,4 @@ public struct UpbitAccount: Codable {
     }
 }
 
-extension UpbitAccount {
-    public init(_ json: String?, using encoding: String.Encoding = .utf8) throws {
-        guard let jsonString = json,
-            let data = jsonString.data(using: encoding) else {
-            throw NSError(domain: "JSONDecoding", code: 0, userInfo: nil)
-        }
-        try self.init(data: data)
-    }
-    
-    public init(data: Data) throws {
-        self = try JSONDecoder().decode(UpbitAccount.self, from: data)
-    }
-}
-
 public typealias UpbitAccounts = [UpbitAccount]
-
-extension UpbitAccounts {
-    public init(_ json: String?, using encoding: String.Encoding = .utf8) throws {
-        guard let jsonString = json,
-            let data = jsonString.data(using: encoding) else {
-            throw NSError(domain: "JSONDecoding", code: 0, userInfo: nil)
-        }
-        try self.init(data: data)
-    }
-    
-    public init(data: Data) throws {
-        self = try JSONDecoder().decode(UpbitAccounts.self, from: data)
-    }
-}
