@@ -18,7 +18,9 @@ final class DataLayerTests: XCTestCase {
     
     override func setUpWithError() throws {
         
-        self.networkService = DefaultUpbitNetworkService()
+        self.networkService = DefaultUpbitNetworkService(accessKey: UpbitKeys.access.key,
+                                                         secretKey: UpbitKeys.secret.key
+        )
         self.disposeBag = DisposeBag()
         
         try super.setUpWithError()

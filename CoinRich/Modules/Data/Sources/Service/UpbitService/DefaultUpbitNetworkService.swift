@@ -11,8 +11,16 @@ import RxSwift
 
 final class DefaultUpbitNetworkService: UpbitNetworkService {
     
-    let accessKey = Bundle.main.upbitAccessKey ?? ""
-    let secretKey = Bundle.main.upbitSecretKey ?? ""
+    var accessKey: String
+    var secretKey: String
+    
+    init(accessKey: String, 
+         secretKey: String)
+    {
+        self.accessKey = accessKey
+        self.secretKey = secretKey
+    }
+    
     
     func get(_ api: UpbitAPI, query parameter: [String : String]? = nil) -> Single<AFDataResponse<Data>> {
         return Single.create { [weak self] single in
@@ -28,7 +36,6 @@ final class DefaultUpbitNetworkService: UpbitNetworkService {
                                           query_hash_alg: "SHA512"))
             }
             var headers = HTTPHeaders()
-            
   
             if self.secretKey != "", let secret = self.secretKey.data(using: .utf8),
                var jwt = jwt, let signedJWT = try? jwt.sign(using: .hs256(key: secret)) {
@@ -41,6 +48,7 @@ final class DefaultUpbitNetworkService: UpbitNetworkService {
                     if let error = response.error {
                         single(.failure(error))
                     }else {
+                        Logger.print(try? UpbitAccounts(data: response.data!))
                         single(.success(response))
                     }
                 }
