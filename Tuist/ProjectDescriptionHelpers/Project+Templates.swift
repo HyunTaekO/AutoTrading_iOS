@@ -7,6 +7,7 @@ public enum ModuleType: String, CaseIterable {
     case Wallet
     case RealTrading
     case Simulater
+    case Utils
     
     public var path: Path {
         switch self {
@@ -26,6 +27,7 @@ public extension ModuleType {
             .external(name: "RxCocoa"),
             .external(name: "RxRelay"),
             .external(name: "RxTest"),
+            .with(.Utils)
         ]
         switch self {
         case .CoinRichApp:
@@ -55,6 +57,8 @@ public extension ModuleType {
             return [
                 .with(.Domain),
             ] + commonDependency
+        case .Utils:
+            return []
         }
     }
 }
@@ -81,18 +85,28 @@ public extension Project {
     
     static func framework(_ type: ModuleType) -> Project {
         let name = type.rawValue
-        
         let dependencies = type.dependencies
-        let targets = type == .Data ? apiFramework(name: name, destinations: .iOS, dependencies: dependencies) : makeFrameworkTargets(name: name, destinations: .iOS, dependencies: dependencies)
+        var targets: [Target] = []
+        
+        switch type {
+        case .Data:
+            targets = apiFramework(name: name, dependencies: dependencies)
+        case .Utils:
+            targets.append(makeFrameworkTargets(name: name, dependencies: dependencies))
+        default:
+            targets.append(makeFrameworkTargets(name: name, dependencies: dependencies))
+            targets.append(makeFrameworkTestTargets(name: name))
+        }
        
         return Project(name: name,
                        organizationName: "CoinRichHt.com",
-                       targets: targets)
+                       targets: targets
+        )
     }
     
     // MARK: - Private
     
-    private static func makeFrameworkTargets(name: String, destinations: Destinations, dependencies: [TargetDependency]) -> [Target] {
+    private static func makeFrameworkTargets(name: String, dependencies: [TargetDependency]) -> Target {
         let sources = Target(name: name,
                            destinations: .iOS,
                            product: .framework,
@@ -103,18 +117,22 @@ public extension Project {
                            dependencies: dependencies
                       )
         
+        return sources
+    }
+    
+    private static func makeFrameworkTestTargets(name: String) -> Target {
         let tests = Target(name: "\(name)Tests",
-                           destinations: destinations,
+                           destinations: .iOS,
                            product: .unitTests,
                            bundleId: "com.ht.\(name)Tests",
-                           infoPlist: .extendingDefault(with: infoPlist),
+                           infoPlist: .default,
                            sources: ["Tests/**"],
                            resources: [],
                            dependencies: [.target(name: name)])
-        return [sources, tests]
+        return tests
     }
     
-    private static func apiFramework(name: String, destinations: Destinations, dependencies: [TargetDependency]) -> [Target] {
+    private static func apiFramework(name: String, dependencies: [TargetDependency]) -> [Target] {
         let sources = Target(name: name,
                             destinations: .iOS,
                             product: .framework,
@@ -124,12 +142,12 @@ public extension Project {
                             resources: [],
                             dependencies: dependencies,
                             settings: .settings(configurations: [
-                                .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig")),
-                                .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig"))
+                                .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/Keys/Secrets.xcconfig")),
+                                .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/Keys/Secrets.xcconfig"))
                             ])
         )
         let tests = Target(name: "\(name)Tests",
-                           destinations: destinations,
+                           destinations: .iOS,
                            product: .unitTests,
                            bundleId: "com.ht.\(name)Tests",
                            infoPlist: .extendingDefault(with: infoPlist),
@@ -137,8 +155,8 @@ public extension Project {
                            resources: [],
                            dependencies: [.target(name: name)],
                            settings: .settings(configurations: [
-                            .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig")),
-                            .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/APIKey/Secrets.xcconfig"))
+                            .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/Keys/Secrets.xcconfig")),
+                            .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/Keys/Secrets.xcconfig"))
                            ])
         )
         return [sources, tests]
