@@ -11,21 +11,6 @@ import Alamofire
 protocol UpbitNetworkService {
     
     // MARK: HTTP Methods
-    func get(_ api: UpbitAPI,
-             query parameter: [String: String]?
-    ) -> Single<AFDataResponse<Data>>
-    
-    func get(_ api: UpbitAPI,
-             query parameter: [String: String],
-             arrayQuery arrayParameter: [String: [String]]
-    ) -> Single<AFDataResponse<Data>>
-    
-    func post(_ api: UpbitAPI,
-              body parameter: [String: String]
-    ) -> Single<AFDataResponse<Data>>
-    
-    func delete(_ api: UpbitAPI,
-                query parameter: [String: String]?
-    ) -> Single<AFDataResponse<Data>>
+    func upbitRequest(_ endPoint: UpbitEndPoint,_ parameters: RequestParameters) -> Single<AFDataResponse<Data>>
     
 }
