@@ -21,12 +21,15 @@ let dependencies = Dependencies(
                 url: "https://github.com/RxSwiftCommunity/RxGesture.git",
                 requirement: .upToNextMajor(from: "4.0.3")
             ),
-            .remote(url: "https://github.com/Alamofire/Alamofire", 
+            .remote(url: "https://github.com/Alamofire/Alamofire",
                     requirement: .upToNextMajor(from: "5.0.0")
                    ),
             .remote(url: "https://github.com/Kitura/Swift-JWT.git",
                     requirement: .upToNextMajor(from: "3.6.1")
-                   )
+                   ),
+            .remote(url: "https://github.com/daltoniam/Starscream",
+                    requirement: .upToNextMajor(from: "4.0.5")
+                   ),
         ],
         productTypes: [
             "RxSwift": .framework,
@@ -40,6 +43,5 @@ let dependencies = Dependencies(
                 .release(name: "Release")
             ])
     ),
-    
     platforms: [.iOS]
 )

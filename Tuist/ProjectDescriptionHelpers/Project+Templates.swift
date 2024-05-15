@@ -42,6 +42,7 @@ public extension ModuleType {
                 .with(.Domain),
                 .external(name: "SwiftJWT"),
                 .external(name: "Alamofire"),
+                .external(name: "Starscream")
             ]
         case .Domain:
             return commonDependency
