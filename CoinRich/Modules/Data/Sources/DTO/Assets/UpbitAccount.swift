@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import Domain
 
 public struct UpbitAccount: Codable {
     public let currency: String
@@ -20,6 +21,21 @@ public struct UpbitAccount: Codable {
         case avgBuyPriceModified = "avg_buy_price_modified"
         case unitCurrency = "unit_currency"
     }
+    
+    public func toModel() -> Asset {
+        return Asset(currency: self.currency,
+                     balance: Double(self.balance) ?? -1,
+                     locked: Double(self.locked) ?? -1,
+                     avgBuyPrice: Int(avgBuyPrice) ?? -1,
+                     unitCurrency: self.unitCurrency)
+    }
 }
 
 public typealias UpbitAccounts = [UpbitAccount]
+
+extension UpbitAccounts {
+    public func toModel() -> Assets {
+        return self.map{ $0.toModel() }
+    }
+    
+}

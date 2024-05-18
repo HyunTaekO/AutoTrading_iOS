@@ -8,11 +8,10 @@
 import Foundation
 
 extension Data {
-    
     // JSON 데이터 -> DTO Struct
     public func toObject<T>(_ type: T.Type) -> T? where T: Decodable {
         do {
-            let dec = try JSONDecoder().decode(T.self, from: self)
+            return try JSONDecoder().decode(T.self, from: self)
         }catch {
             Logger.print(error, "Decoding error")
         }
@@ -25,7 +24,7 @@ extension Data {
             let prettyJsonData = try JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
             
             if let prettyJsonString = String(data: prettyJsonData, encoding: .utf8) {
-                Logger.print(prettyJsonString)
+                Logger.print(prettyJsonString, "JSON 데이터 출력")
             } else {
                 Logger.print("JSON 데이터 변환 실패")
             }
