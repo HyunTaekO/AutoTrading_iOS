@@ -18,12 +18,7 @@ enum UpbitEndpoint {
 extension UpbitEndpoint: Endpoint {
     
     var baseURL: String {
-        switch self {
-//        case .webSocket:
-//            return "wss://api.upbit.com/websocket/v1"
-        default:
             return "https://api.upbit.com/v1"
-        }
     }
     
     public var method: HTTPMethod {
@@ -59,13 +54,5 @@ extension UpbitEndpoint: Endpoint {
             return false
         }
     }
-
-}
-
-// MARK: WebSockets
-extension UpbitEndpoint {
-    
-    
-    
 
 }

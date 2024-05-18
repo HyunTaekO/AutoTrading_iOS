@@ -14,7 +14,7 @@ protocol NetworkService {
     func httpRequest(_ endPoint: Endpoint,_ parameters: HTTPRequestParameter?) -> Single<AFDataResponse<Data>>
     
     // MARK: WebSocket
-    func connectWebSockets()
-    func requestWebSockets(_ message: [WebSocketRequest])
-    func disconnectWebSockets()
+    func connectWebSockets(_ wsType: WebSockets)
+    func requestUpbitWS(_ wsType: WebSockets,_ message: UpbitWSMessage)
+    func disconnectWebSockets(_ wsType: WebSockets)
 }

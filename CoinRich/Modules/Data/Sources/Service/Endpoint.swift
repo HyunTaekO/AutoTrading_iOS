@@ -25,9 +25,7 @@ protocol Endpoint {
     var headers: HTTPHeaders { get }
     var encoding: ParameterEncoding? { get }
     func asURLRequest(_ parameter: HTTPRequestParameter?) throws -> URLRequest
-    
-    //func createWebSocket() -> WebSocket
-    
+        
     // for UpbitAPI
     var personal: Bool { get }
     

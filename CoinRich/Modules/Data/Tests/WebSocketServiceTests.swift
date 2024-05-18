@@ -20,7 +20,17 @@ final class WebSocketServiceTests: XCTestCase {
     override func setUpWithError() throws {
         self.networkService = DefaultNetworkService()
         self.disposeBag = DisposeBag()
+        networkService
+            .connectWebSockets(.upbit(.open(.ticker)))
         
+        let response = try?
+            networkService
+            .upbitOpenWS?
+            .responseConnected
+            .toBlocking(timeout: 6)
+            .first()
+
+        XCTAssertTrue(response ?? false, "웹소켓 연결이 실패했습니다.")
         try super.setUpWithError()
     }
     
@@ -29,43 +39,32 @@ final class WebSocketServiceTests: XCTestCase {
         disposeBag = nil
         try super.tearDownWithError()
     }
-
-    func test_WebSocketConnect() {
-        networkService
-            .connectWebSockets()
-
-        let response = try?
-        WebSocketService.shared.response
-            .toBlocking(timeout: 5)
-            .last()
-        Logger.print(response)
-        XCTAssertNotNil(response)
-    }
+ 
     func test_WebSocketRequest() {
+        let message = UpbitWSMessage(type: .ticker, codes: [.XRP], isOnlyRealtime: true)
         networkService
-            .requestWebSockets([
-                ["codes": ["KRW-BTC"],
-                 "type": "orderbook"
-                ]
-            ])
-
-        let response = try?
-        WebSocketService.shared.response
-            .toBlocking(timeout: 20)
-            .last()
+            .requestUpbitWS(.upbit(.open(.ticker)), message)
         
-        XCTAssertNotNil(response)
+        let responseData = try?
+            networkService
+            .upbitOpenWS?
+            .responseData
+            .toBlocking(timeout: 10)
+            .first()
+        XCTAssertNotNil(responseData, "웹소켓 응답이 없습니다.")
     }
     
     func test_WebSocketClose() {
         networkService
-            .disconnectWebSockets()
-
+            .disconnectWebSockets(.upbit(.open(.ticker)))
+        
         let response = try?
-        WebSocketService.shared.response
-            .toBlocking(timeout: 5)
+            networkService
+            .upbitOpenWS?
+            .responseData
+            .toBlocking(timeout: 20)
             .last()
-            
+        Logger.print(response)
         XCTAssertNotNil(response)
     }
 

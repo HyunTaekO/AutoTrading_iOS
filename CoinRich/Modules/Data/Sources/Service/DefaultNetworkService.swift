@@ -15,6 +15,8 @@ import Starscream
 
 final class DefaultNetworkService: NetworkService {
     
+    var upbitPersonalWS: WebSocketService?
+    var upbitOpenWS: WebSocketService?
     
     // MARK: HTTP Request
     func httpRequest(_ endPoint: Endpoint,_ parameters: HTTPRequestParameter? = nil) -> Single<AFDataResponse<Data>> {
@@ -45,23 +47,44 @@ final class DefaultNetworkService: NetworkService {
 
 // MARK: WebSocket Methods
 extension DefaultNetworkService {
-    func connectWebSockets() {
-        WebSocketService.shared.wsConnect(false)
-
-    }
-    
-    func requestWebSockets(_ message: [WebSocketRequest]) {
-        let send: [[String: Any]] = [["ticket": UUID().uuidString]] + message
-
-        if let jsonString = send.toJsonString() {
-            WebSocketService.shared.wsRequest(from: jsonString)
+    func connectWebSockets(_ wsType: WebSockets) {
+        switch wsType {
+        case .upbit(let type):
+            switch type {
+            case .open(_):
+                self.upbitOpenWS = WebSocketService(ws: type.createWebSocket())
+                self.upbitOpenWS?.wsConnect()
+            case .personal(_):
+                self.upbitPersonalWS = WebSocketService(ws: type.createWebSocket())
+                self.upbitPersonalWS?.wsConnect()
+            }
         }
         
     }
     
-    func disconnectWebSockets() {
-        WebSocketService.shared.wsDisconnect()
+    func requestUpbitWS(_ wsType: WebSockets,_ message: UpbitWSMessage) {
+        switch wsType {
+        case .upbit(let type):
+            switch type {
+            case .open(_):
+                self.upbitOpenWS?.wsRequest(from: message.messageToString())
+            case .personal(_):
+                self.upbitPersonalWS?.wsRequest(from: message.messageToString())
+            }
+        }
     }
+
     
+    func disconnectWebSockets(_ wsType: WebSockets) {
+        switch wsType {
+        case .upbit(let type):
+            switch type {
+            case .open(_):
+                self.upbitOpenWS?.wsDisconnect()
+            case .personal(_):
+                self.upbitPersonalWS?.wsDisconnect()
+            }
+        }
+    }
     
 }
