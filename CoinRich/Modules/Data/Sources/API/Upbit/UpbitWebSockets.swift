@@ -24,7 +24,7 @@ extension UpbitWebSockets {
         }
     }
     
-    func createWebSocket() -> WebSocket {
+    func createWebSocket(_ compression: WSCompression) -> WebSocket {
         var request = URLRequest(url: URL(string: baseURL)!)
         request.timeoutInterval = 5
         switch self {
@@ -34,7 +34,8 @@ extension UpbitWebSockets {
             let jwt = request.createJWT(nil, UpbitKeys.access.key, UpbitKeys.secret.key)
             request.headers = request.headersAppendJWT(jwt)
         }
-        return WebSocket(request: request)
+        
+        return WebSocket(request: request, compressionHandler: compression)
     }
     
     func message(_ send: UpbitWSMessage) -> String {
@@ -46,8 +47,8 @@ enum UpbitWSRequestType: String {
     case ticker,
          trade,
          orderBook = "orderbook",
-         myOrder = "myorder",
-         myAsset = "myasset"
+         myOrder,
+         myAsset
 }
 
 
@@ -81,6 +82,8 @@ struct UpbitWSMessage {
             request.append(["format": format])
         }
         
+        
+        
         return request.toJsonString() ?? ""
     }
     
@@ -89,7 +92,7 @@ struct UpbitWSMessage {
          level: Double? = nil,
          isOnlySnapshot: Bool? = nil,
          isOnlyRealtime: Bool? = nil,
-         format: String? = nil)
+         format: String? = "SIMPLE")
     {
         self.type = type
         self.codes = codes

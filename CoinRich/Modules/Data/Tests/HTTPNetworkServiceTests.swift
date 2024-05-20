@@ -35,7 +35,7 @@ final class HTTPNetworkServiceTests: XCTestCase {
             .httpRequest(
                 UpbitEndpoint.exchange(.asset(.allAccounts))
             )
-            .toBlocking(timeout: 1).first()?
+            .toBlocking(timeout: 0.2).first()?
             .error == nil ? true : false
         
         XCTAssertEqual(getAccounts, true)
@@ -47,26 +47,22 @@ final class HTTPNetworkServiceTests: XCTestCase {
                 UpbitEndpoint
                     .exchange(
                         .depositAndwithdraw(
-                            .depositList
+                            .depositList(.despositAndWithdrawParam(.KRW))
                         )
                     )
-                ,
-                ["currency": "KRW"]
             )
-            .toBlocking(timeout: 1).first()?
+            .toBlocking(timeout: 0.2).first()?
             .error == nil ? true : false
         let getWithdraws = try? networkService
             .httpRequest(
                 UpbitEndpoint
                     .exchange(
                         .depositAndwithdraw(
-                            .withdrawList
+                            .withdrawList(.despositAndWithdrawParam(.KRW, "asc"))
                         )
                     )
-                ,
-                ["currency": "BTC"]
             )
-            .toBlocking(timeout: 3).first()?
+            .toBlocking(timeout: 0.2).first()?
             .error == nil ? true : false
         
         XCTAssertEqual(getDeposits, true)
@@ -77,40 +73,50 @@ final class HTTPNetworkServiceTests: XCTestCase {
     func test_getMarkets() {
         let get = try? networkService
             .httpRequest(UpbitEndpoint.quotation(.marketAll))
-            .toBlocking(timeout: 3).first()?
+            .toBlocking(timeout: 0.2).first()?
             .error == nil ? true : false
         
         XCTAssertEqual(get, true)
     }
-    
-    // MARK: Candles
+//    
+//    // MARK: Candles
     func test_Candles() {
         let get = try? networkService
             .httpRequest(
                 UpbitEndpoint
                     .quotation(
-                        .candles(.days)
+                        .candles(.minute(.five),
+                                 .candleParam(.XRP, nil, 5)
+                        )
                     )
-                ,
-                ["market": "KRW-BTC", "count": "5"]
             )
-            .toBlocking(timeout: 3).first()?
+            .toBlocking(timeout: 0.2).first()?
             .error == nil ? true : false
         
         XCTAssertEqual(get, true)
     }
+
     
-    // MARK: TradesTicks
-    func test_TradesTicks() {
+    // MARK: Orders
+    func test_Orders() {
         let get = try? networkService
             .httpRequest(
                 UpbitEndpoint
-                    .quotation(
-                        .tradesTicks)
-                ,
-                ["market": "KRW-BTC"]
+                    .exchange(
+                        .order(
+                            .order(
+                                .orderParam(
+                                    .XRP,
+                                    .buy,
+                                    2,
+                                    710,
+                                    .limit
+                                )
+                            )
+                        )
+                    )
             )
-            .toBlocking(timeout: 3).first()?
+            .toBlocking(timeout: 0.2).first()?
             .error == nil ? true : false
         
         XCTAssertEqual(get, true)

@@ -8,14 +8,14 @@
 import Foundation
 
 // MARK: - UpbitCandle
-public struct UpbitCandle: Codable {
-    public let market, candleDateTimeUTC, candleDateTimeKst: String
-    public let openingPrice, highPrice, lowPrice, tradePrice: Double
-    public let timestamp: Int
-    public let candleAccTradePrice, candleAccTradeVolume: Double
-    public let unit, changePrice: Int?
-    public let changeRate: Double?
-
+struct UpbitCandle: Codable {
+    let market, candleDateTimeUTC, candleDateTimeKst: String
+    let openingPrice, highPrice, lowPrice, tradePrice: Double
+    let timestamp: Int
+    let candleAccTradePrice, candleAccTradeVolume: Double
+    let unit, changePrice: Int?
+    let changeRate: Double?
+    
     enum CodingKeys: String, CodingKey {
         case market, timestamp, unit
         case candleDateTimeUTC = "candle_date_time_utc"
@@ -31,4 +31,4 @@ public struct UpbitCandle: Codable {
     }
 }
 
-public typealias UpbitCandles = [UpbitCandle]
+typealias UpbitCandles = [UpbitCandle]

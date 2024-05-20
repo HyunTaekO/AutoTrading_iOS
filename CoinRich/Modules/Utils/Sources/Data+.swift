@@ -13,9 +13,9 @@ extension Data {
         do {
             return try JSONDecoder().decode(T.self, from: self)
         }catch {
-            Logger.print(error, "Decoding error")
+            Logger.print(error, "\(type) Decoding error")
+            return nil
         }
-        return try? JSONDecoder().decode(T.self, from: self)
     }
     // JSON 데이터 출력
     public func printJsonString() throws {
@@ -30,6 +30,23 @@ extension Data {
             }
         } catch {
             Logger.print(error, "JSON 데이터 역직렬화 실패")
+        }
+    }
+    // JSON -> String
+    public func toString() throws -> String? {
+        do {
+            let jsonObject = try JSONSerialization.jsonObject(with: self, options: [])
+            let prettyJsonData = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
+            
+            if let prettyJsonString = String(data: prettyJsonData, encoding: .utf8) {
+                return prettyJsonString
+            } else {
+                Logger.print("JSON 데이터 변환 실패")
+                return nil
+            }
+        } catch {
+            Logger.print(error, "JSON 데이터 역직렬화 실패")
+            return nil
         }
     }
 }

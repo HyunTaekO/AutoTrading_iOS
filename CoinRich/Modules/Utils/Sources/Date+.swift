@@ -9,12 +9,11 @@ import Foundation
 
 extension Date {
     
-    enum Format: String {
+    public enum Format: String {
         case toCandleFormat = "yyyy-MM-dd HH:mm:ss"
-      
     }
     
-    func toString(type: Format) -> String {
+    public func toString(type: Format) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.timeZone = TimeZone(abbreviation: "KST")
@@ -23,7 +22,7 @@ extension Date {
         return formatter.string(from: self)
     }
 
-    static func stringToDate(dateString: String, type: Format) -> Date? {
+    public static func stringToDate(dateString: String, type: Format) -> Date? {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.timeZone = TimeZone(abbreviation: "KST")

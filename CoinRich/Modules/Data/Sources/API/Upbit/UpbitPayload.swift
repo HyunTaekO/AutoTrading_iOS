@@ -7,7 +7,7 @@
 import Foundation
 import SwiftJWT
 
-public struct UpbitPayload: Claims {
+struct UpbitPayload: Claims {
     let access_key: String
     let nonce: String
     let query_hash: String?

@@ -8,16 +8,25 @@
 import Foundation
 import Starscream
 import RxSwift
+import RxCocoa
 import RxRelay
 import Utils
 
 // MARK: WebSocketService
 final class WebSocketService {
     
-    var responseData = PublishSubject<Data>()
+    // Responses
     var responseConnected = PublishSubject<Bool>()
-    var ws: WebSocket?
+    var responseTickers = PublishSubject<UpbitTicker>()
+    var responseTrades = PublishSubject<UpbitTrade>()
+    var responseOrderBooks = PublishSubject<UpbitOrderBook>()
+    var responseMyOrders = PublishSubject<UpbitMyOrder>()
+    var responseMyAssets = PublishSubject<String?>()
+    var isConnected = BehaviorRelay<Bool>(value: false)
     
+    // Socket
+    var ws: WebSocket?
+
     init(ws: WebSocket) {
         self.ws = ws
     }
@@ -33,7 +42,7 @@ final class WebSocketService {
     }
     
     func wsRequest(from message: String) {
-        Logger.print(message, "wsREQUEST")
+        Logger.print(message, "Request Message")
         ws?.write(string: message)
     }
     
@@ -50,12 +59,25 @@ extension WebSocketService: WebSocketDelegate {
             responseConnected.onNext(true)
                 print("websocket is connected: \(headers)")
         case .disconnected(let reason, let code):
-            Logger.print(reason, "disconnected")
+            Logger.print(code, "disconnected")
         case .text(let text):
             Logger.print(text, "TEXT")
         case .binary(let data):
-            Logger.print(try? data.printJsonString(), "Data")
-            responseData.onNext(data)
+            try? data.printJsonString()
+            //responseMyAssets.onNext(try? data.toString())
+            if let ticker = data.toObject(UpbitTicker.self) {
+                Logger.print(ticker, "UpbitTicker")
+                responseTickers.onNext(ticker)
+            }else if let trade = data.toObject(UpbitTrade.self) {
+                Logger.print(trade, "UpbitTrade")
+                responseTrades.onNext(trade)
+            }else if let orderbook = data.toObject(UpbitOrderBook.self) {
+                Logger.print(orderbook, "UpbitOrderBook")
+                responseOrderBooks.onNext(orderbook)
+            }else if let myOrder = data.toObject(UpbitMyOrder.self) {
+                Logger.print(myOrder, "UpbitMyOrder")
+                responseMyOrders.onNext(myOrder)
+            }
         case .pong(let pongData):
             Logger.print(pongData, "pongData")
         case .ping(let pingData):

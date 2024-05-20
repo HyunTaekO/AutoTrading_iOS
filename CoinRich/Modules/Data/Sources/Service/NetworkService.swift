@@ -11,7 +11,7 @@ import Starscream
 
 protocol NetworkService {
     // MARK: HTTP
-    func httpRequest(_ endPoint: Endpoint,_ parameters: HTTPRequestParameter?) -> Single<AFDataResponse<Data>>
+    func httpRequest(_ endPoint: Endpoint) -> Single<AFDataResponse<Data>>
     
     // MARK: WebSocket
     func connectWebSockets(_ wsType: WebSockets)

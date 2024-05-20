@@ -5,8 +5,9 @@
 //
 
 import Foundation
+import Domain
 
-public enum ExchangeAPI {
+enum ExchangeAPI {
     case asset(AssetAPI), order(OrderAPI), depositAndwithdraw(depositAndwithdrawAPI)
 }
 
@@ -18,9 +19,30 @@ extension ExchangeAPI {
         case .depositAndwithdraw(let api): return api.path
         }
     }
+    
+    var parameters: HTTPRequestParameter? {
+        switch self {
+        case .asset(let api): return nil
+        case .order(let api):
+            switch api {
+            case .order(let param):
+                return param.parameter
+            default:
+                return nil
+            }
+        case .depositAndwithdraw(let api):
+            switch api {
+            case .depositList(let param):
+                return param.parameter
+            case .withdrawList(let param):
+                return param.parameter
+            }
+        }
+    }
+    
 }
 
-public enum AssetAPI {
+enum AssetAPI {
     case allAccounts
 }
 
@@ -32,12 +54,12 @@ extension AssetAPI {
     }
 }
 
-public enum OrderAPI {
+enum OrderAPI {
     case ordersChance, //주문 가능 정보
          searchOrder,
          searchOrders,
          deleteOrder,
-         order
+         order(UpbitParameters)
 }
 
 extension OrderAPI {
@@ -45,17 +67,18 @@ extension OrderAPI {
         switch self {
         case .ordersChance: return "/orders/chance"
         case .searchOrder, .deleteOrder: return "/order"
-        case .searchOrders, .order: return "/orders"
+        case .searchOrders: return "/orders"
+        case .order(let param):
+            return "/orders" + param.body
         }
     }
+    
+
 }
 
-public enum MarketPosition: String {
-    case buy = "bid", sell = "ask"
-}
-
-public enum depositAndwithdrawAPI {
-    case depositList, withdrawList
+enum depositAndwithdrawAPI {
+    case depositList(UpbitParameters),
+         withdrawList(UpbitParameters)
 }
 
 extension depositAndwithdrawAPI {
@@ -68,7 +91,7 @@ extension depositAndwithdrawAPI {
 }
 
 // MARK: 입출금 현황 및 블록 상태 조회
-public enum InfoAPI {
+enum InfoAPI {
     case walletStatus
 }
 
@@ -76,6 +99,6 @@ extension InfoAPI {
     var path: String { "/status/wallet" }
 }
 
-public enum UpbitMethod {
+enum UpbitMethod {
     case get, delete
 }

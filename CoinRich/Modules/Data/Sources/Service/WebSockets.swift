@@ -13,7 +13,7 @@ import Domain
 protocol WebSocketType {
     var baseURL: String { get }
     func message(_ send: UpbitWSMessage) -> String
-    func createWebSocket() -> WebSocket
+    func createWebSocket(_ compression: WSCompression) -> WebSocket
 }
 
 // MARK: WebSockets

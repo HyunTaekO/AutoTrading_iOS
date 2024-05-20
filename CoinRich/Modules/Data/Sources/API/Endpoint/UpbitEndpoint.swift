@@ -23,6 +23,8 @@ extension UpbitEndpoint: Endpoint {
     
     public var method: HTTPMethod {
         switch self {
+        case .exchange(.order):
+            return .post
         default:
             return .get
         }
@@ -34,12 +36,23 @@ extension UpbitEndpoint: Endpoint {
         case .quotation(let api): return api.path
         }
     }
+    
+    var parameters: HTTPRequestParameter? {
+        switch self {
+        case .exchange(let api):
+            return api.parameters
+        case .quotation(let api):
+            return api.parameters
+        }
+    }
 
     var encoding: ParameterEncoding? {
         switch self {
-        case .exchange(.depositAndwithdraw(_)),
-                .quotation(_):
+        case .exchange(.depositAndwithdraw),
+                .quotation:
             return URLEncoding.default
+        case .exchange(.order):
+            return JSONEncoding.default
         default:
             return nil
         }
@@ -48,7 +61,7 @@ extension UpbitEndpoint: Endpoint {
 
     var personal: Bool {
         switch self {
-        case .exchange(_):
+        case .exchange:
             return true
         default:
             return false

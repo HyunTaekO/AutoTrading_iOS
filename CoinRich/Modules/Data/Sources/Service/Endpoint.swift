@@ -10,8 +10,12 @@ import Alamofire
 import Starscream
 import SwiftJWT
 import Utils
-// MARK: - Parameters
-public typealias HTTPRequestParameter = [String: String]
+
+enum Markets {
+    case upbit
+}
+
+typealias HTTPRequestParameter = [String: String]
 
 // MARK: Endpoint
 protocol Endpoint {
@@ -21,10 +25,10 @@ protocol Endpoint {
     var baseURL: String { get }
     var path: String { get }
     var method: HTTPMethod { get }
-    //var parameter: RequestParameter? { get }
     var headers: HTTPHeaders { get }
+    var parameters: HTTPRequestParameter? { get }
     var encoding: ParameterEncoding? { get }
-    func asURLRequest(_ parameter: HTTPRequestParameter?) throws -> URLRequest
+    func asURLRequest() throws -> URLRequest
         
     // for UpbitAPI
     var personal: Bool { get }
@@ -37,22 +41,23 @@ extension Endpoint {
     
     var headers: HTTPHeaders { return HTTPHeaders() }
     
-    func asURLRequest(_ parameter: HTTPRequestParameter? = nil) throws -> URLRequest {
+    func asURLRequest() throws -> URLRequest {
+        let queryString = toQueryString(parameters)
         let url = URL(string: baseURL + path)
         var request = URLRequest(url: url!)
-     
+        
         request.method = method
+        request.headers = headers
         
         if personal {
-            let queryHash = convertQueryHash(parameter)
+            
+            let queryHash = convertQueryHash(queryString)
             let jwt = request.createJWT(queryHash, upbitAccessKey, upbitSecretKey)
             request.headers = request.headersAppendJWT(jwt)
-        }else {
-            request.headers = headers
         }
         
         if let encoding = encoding {
-            return try encoding.encode(request, with: parameter)
+            return try encoding.encode(request, with: parameters)
         }
         
         return request
@@ -63,11 +68,14 @@ extension Endpoint {
 // for Upbit Authorization - jwt, payload
 extension Endpoint {
     
-    func convertQueryHash(_ parameters: HTTPRequestParameter?) -> String {
-        var components = URLComponents()
-        components.queryItems = parameters?.map { URLQueryItem(name: $0, value: $1)}
-        
-        let queryHashAlg = components.query?.digest(using: .sha512) ?? ""
+    func toQueryString(_ parameters: HTTPRequestParameter?) -> String? {
+        let queryString = parameters?.map { "\($0)=\($1)" }.joined(separator: "&")
+        return queryString
+    }
+    
+    func convertQueryHash(_ queryString: String?) -> String {
+        guard let queryString = queryString else{ return "" }
+        let queryHashAlg = queryString.digest(using: .sha512)
         return queryHashAlg
     }
     
@@ -75,11 +83,10 @@ extension Endpoint {
 
 extension URLRequest {
     func headersAppendJWT(_ jwt: String?) -> HTTPHeaders {
-        Logger.print(jwt)
         guard let jwtToken = jwt
         else { return HTTPHeaders() }
         var headers = HTTPHeaders()
-        
+        headers.add(name: "Content-Type", value: "application/json")
         headers.add(name: "Authorization", value: jwtToken)
         return headers
     }
