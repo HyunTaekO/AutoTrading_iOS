@@ -30,12 +30,17 @@ let dependencies = Dependencies(
             .remote(url: "https://github.com/daltoniam/Starscream",
                     requirement: .upToNextMajor(from: "4.0.5")
                    ),
+//            .remote(url: "https://github.com/firebase/firebase-ios-sdk",
+//                    requirement: .upToNextMajor(from: "10.23.0")
+//                   ),
+            
         ],
         productTypes: [
             "RxSwift": .framework,
             "RxGesture": .framework,
             "Alamofire": .framework,
-            "SwiftJWT": .framework
+            "SwiftJWT": .framework,
+            //"Firebase": .framework
         ],
         baseSettings: .settings(
             configurations: [

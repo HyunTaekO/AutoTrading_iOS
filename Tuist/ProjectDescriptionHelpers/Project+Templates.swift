@@ -1,6 +1,7 @@
 import ProjectDescription
 
 public enum ModuleType: String, CaseIterable {
+    //case FirebaseService
     case CoinRichApp
     case Data
     case Domain
@@ -8,7 +9,6 @@ public enum ModuleType: String, CaseIterable {
     case RealTrading
     case Simulater
     case Utils
-    
     public var path: Path {
         switch self {
         case .Wallet, .RealTrading, .Simulater:
@@ -21,15 +21,16 @@ public enum ModuleType: String, CaseIterable {
 
 public extension ModuleType {
     var dependencies: [TargetDependency] {
-        let commonDependency: [TargetDependency] = [
+        let commonTargetDependency: [TargetDependency] = [
             .external(name: "RxSwift"),
-            .external(name: "RxBlocking"),
             .external(name: "RxCocoa"),
             .external(name: "RxRelay"),
-            .external(name: "RxTest"),
             .with(.Utils)
         ]
+        
         switch self {
+//        case .FirebaseService:
+//            return [.external(name: "FirebaseFirestore")] + commonTargetDependency
         case .CoinRichApp:
             return [
                 .with(.Data),
@@ -42,37 +43,34 @@ public extension ModuleType {
                 .with(.Domain),
                 .external(name: "SwiftJWT"),
                 .external(name: "Alamofire"),
-                .external(name: "Starscream")
+                .external(name: "Starscream"),
+                //.with(.FirebaseService),
             ]
         case .Domain:
-            return commonDependency
+            return commonTargetDependency
         case .Wallet:
             return [
                 .with(.Domain),
-            ] + commonDependency
+            ]
         case .RealTrading:
             return [
                 .with(.Domain),
-            ] + commonDependency
+            ]
         case .Simulater:
             return [
                 .with(.Domain),
-            ] + commonDependency
+            ]
         case .Utils:
             return []
         }
     }
 }
 
-let infoPlist: [String: Plist.Value] = [
-    "CFBundleShortVersionString": "1.0",
-    "CFBundleVersion": "1",
-    "UIMainStoryboardFile": "",
-    "UILaunchStoryboardName": "LaunchScreen",
-    "UpbitSecretKey": "$(UPBIT_API_SECRET_KEY)",
-    "UpbitAccessKey": "$(UPBIT_API_ACCESS_KEY)"
+let infoPlist = InfoPlist.file(path: "/Users/ohhyunnteak/Documents/Documents/2024Project/CoinRichSystem/CoinRich/Modules/CoinRichApp/Support/Info.plist")
+let commonTestDependency: [TargetDependency] = [
+    .external(name: "RxBlocking"),
+    .external(name: "RxTest")
 ]
-
 public extension Project {
     
     static func app(_ type: ModuleType) -> Project {
@@ -94,6 +92,8 @@ public extension Project {
             targets = apiFramework(name: name, dependencies: dependencies)
         case .Utils:
             targets.append(makeFrameworkTargets(name: name, dependencies: dependencies))
+//        case .FirebaseService:
+//            targets.append(makeFrameworkTargets(name: name, dependencies: dependencies))
         default:
             targets.append(makeFrameworkTargets(name: name, dependencies: dependencies))
             targets.append(makeFrameworkTestTargets(name: name))
@@ -112,7 +112,7 @@ public extension Project {
                            destinations: .iOS,
                            product: .framework,
                            bundleId: "com.ht.CoinRichHt\(name)",
-                           infoPlist: .extendingDefault(with: infoPlist),
+                             infoPlist: .default,
                            sources: ["Sources/**"],
                            resources: [],
                            dependencies: dependencies
@@ -129,7 +129,7 @@ public extension Project {
                            infoPlist: .default,
                            sources: ["Tests/**"],
                            resources: [],
-                           dependencies: [.target(name: name)])
+                           dependencies: [.target(name: name)] + commonTestDependency)
         return tests
     }
     
@@ -138,7 +138,7 @@ public extension Project {
                             destinations: .iOS,
                             product: .framework,
                             bundleId: "com.ht.CoinRichHt\(name)",
-                            infoPlist: .extendingDefault(with: infoPlist),
+                            infoPlist: .default,
                             sources: ["Sources/**"],
                             resources: [],
                             dependencies: dependencies,
@@ -151,10 +151,10 @@ public extension Project {
                            destinations: .iOS,
                            product: .unitTests,
                            bundleId: "com.ht.\(name)Tests",
-                           infoPlist: .extendingDefault(with: infoPlist),
+                           infoPlist: .default,
                            sources: ["Tests/**"],
                            resources: [],
-                           dependencies: [.target(name: name)],
+                           dependencies: [.target(name: name)] + commonTestDependency,
                            settings: .settings(configurations: [
                             .debug(name: "Debug", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/Keys/Secrets.xcconfig")),
                             .release(name: "Release", xcconfig: .relativeToRoot("CoinRich/Modules/Data/Sources/API/Keys/Secrets.xcconfig"))
@@ -170,7 +170,7 @@ public extension Project {
             destinations: destinations,
             product: .app,
             bundleId: "com.CoinRichHt.\(name)",
-            infoPlist: .extendingDefault(with: infoPlist),
+            infoPlist: infoPlist,
             sources: ["Sources/**"],
             resources: [],
             dependencies: dependencies
