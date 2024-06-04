@@ -13,6 +13,22 @@ import Domain
 
 public final class AccountRepository: AccountsRepository {
     
+    var networkService: NetworkService
+    var disposeBag: DisposeBag
+    
+    init(networkService: NetworkService, 
+         disposeBag: DisposeBag)
+    {
+        self.networkService = networkService
+        self.disposeBag = disposeBag
+    }
+    
+//    public func getAssets() -> Single<Assets> {
+//        let endpoint = UpbitEndpoint.exchange(.asset(.allAccounts))
+//        return networkService
+//            .httpRequest(endpoint)
+//            .map{ $0.data?.compactMap{ $0 } }
+//    }
     
 
 }

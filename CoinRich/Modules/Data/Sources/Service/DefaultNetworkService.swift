@@ -25,18 +25,28 @@ final class DefaultNetworkService: NetworkService {
             
             guard let request = try? endPoint.asURLRequest()
             else { return Disposables.create() }
-            Logger.print(try? request.httpBody?.toString(), "httpBody")
-            //Logger.print(try? request.headers, "headers")
+            Logger.print("실제 요청")
             AF.request(request)
+                .validate(statusCode: 200..<400)
                 .responseData { response in
                     if let error = response.error {
-                        //Logger.print(request.url ?? "nil", "실패 URL")
-                        single(.failure(error))
+                        Logger.errorPrint("ERROR",try? response.data?.toString())
+                        if let errorObject = response.data?.toObject(UpbitHTTPError.self) {
+                            let errorCode = error.responseCode
+                            if errorCode == 400 {
+                                single(.failure(UpbitNetworkError.badRequest(errorObject)))
+                            }else if errorCode == 401 {
+                                single(.failure(UpbitNetworkError.unauthorized(errorObject)))
+                            }else {
+                                single(.failure(UpbitNetworkError.unowned(errorObject)))
+                            }
+                        }else {
+                            single(.failure(UpbitNetworkError.unowned(nil)))
+                        }
+                        
                     }else {
                         // debug Log
-                        try? response.data?.printJsonString()
-                        Logger.print(try? response.data?.toObject(UpbitOrder.self))
-                        Logger.print(request.url ?? "nil", "성공 URL")
+                        //try? response.data?.printJsonString()
                         single(.success(response))
                     }
                 }

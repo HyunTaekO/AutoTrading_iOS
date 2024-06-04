@@ -11,6 +11,7 @@ extension Date {
     
     public enum Format: String {
         case toCandleFormat = "yyyy-MM-dd HH:mm:ss"
+        case yearMonth = "yyyy-MM"
     }
     
     public func toString(type: Format) -> String {

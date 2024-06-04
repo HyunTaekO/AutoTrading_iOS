@@ -14,10 +14,10 @@ public protocol AccountsRepository {
     // MARK: ExchangeAPI - Asset
     
     // 현재 보유 종목 조회
-    //func getAssets() -> Observable<Assets>
+    //func getAssets() -> Single<Assets>
     
     // 입금 내역 조회
-    //func getDeposit() -> Observable<>
+    //func getDepositList() -> Single<>
     // 출금 내역 조회
     
     //func getTotalAssets() -> Observable<TotalAssets>

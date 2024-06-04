@@ -9,6 +9,21 @@ import RxSwift
 import Alamofire
 import Starscream
 
+enum UpbitNetworkError: Error {
+     case badRequest(UpbitHTTPError),
+          unauthorized(UpbitHTTPError),
+          unowned(UpbitHTTPError?)
+}
+
+struct UpbitHTTPError: Decodable {
+    let error: UpbitHTTPErrorDetail
+    
+    struct UpbitHTTPErrorDetail: Decodable {
+        let message: String
+        let name: String
+    }
+}
+
 protocol NetworkService {
     // MARK: HTTP
     func httpRequest(_ endPoint: Endpoint) -> Single<AFDataResponse<Data>>

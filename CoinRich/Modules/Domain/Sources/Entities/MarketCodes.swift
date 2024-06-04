@@ -8,7 +8,7 @@
 import Foundation
 
 public enum MarketCode: String, CaseIterable {
-    case KRW, BTC, XRP
+    case KRW, BTC, XRP, DOGE
     
     
     public var code: String {

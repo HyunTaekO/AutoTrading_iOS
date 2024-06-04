@@ -8,7 +8,7 @@
 import XCTest
 import RxSwift
 import RxBlocking
-
+import Utils
 @testable import Data
 
 // MARK: API 데이터 입출력 테스트
@@ -16,10 +16,12 @@ final class HTTPNetworkServiceTests: XCTestCase {
     
     private var networkService: DefaultNetworkService!
     private var disposeBag: DisposeBag!
+    private var trainData: TrainData!
     
     override func setUpWithError() throws {
         self.networkService = DefaultNetworkService()
         self.disposeBag = DisposeBag()
+        self.trainData = TrainData(symbol: .DOGE, timeType: .minute(.thirty))
         
         try super.setUpWithError()
     }
@@ -29,6 +31,25 @@ final class HTTPNetworkServiceTests: XCTestCase {
         disposeBag = nil
         try super.tearDownWithError()
     }
+    
+    // MARK: TrainData
+    func test_TrainData() {
+        let year = 2021
+        let month = 02
+        let targetStartDate = "\(year)-\(month)-28 15:00:00"
+        let targetEndDate = "\(year)-\(month)-01 00:00:00"
+        let calendar = Calendar.current
+        var startDate = Date.stringToDate(dateString: targetStartDate, type: .toCandleFormat)!
+        var endDate = Date.stringToDate(dateString: targetEndDate, type: .toCandleFormat)!
+        trainData.addTrainData(startDate, endDate)
+        
+        let test = try? trainData
+            .writeFileSuccess
+            .toBlocking(timeout: 3)
+            .last()
+
+    }
+    
     // MARK: Accounts
     func test_getAccounts() {
         let getAccounts = try? networkService
@@ -85,8 +106,8 @@ final class HTTPNetworkServiceTests: XCTestCase {
             .httpRequest(
                 UpbitEndpoint
                     .quotation(
-                        .candles(.minute(.five),
-                                 .candleParam(.XRP, nil, 5)
+                        .candles(.minute(.thirty),
+                                 .candleParam(.DOGE, Date.stringToDate(dateString: "2021-02-25 00:00:00", type: .toCandleFormat), 200)
                         )
                     )
             )

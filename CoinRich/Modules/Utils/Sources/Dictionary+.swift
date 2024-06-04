@@ -18,5 +18,14 @@ extension Dictionary {
             return nil
         }
     }
+    public func toJSON() -> Data? {
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+            return jsonData
+        } catch {
+            print("Error converting dictionary to JSON: \(error.localizedDescription)")
+        }
+        return nil
+    }
 }
 

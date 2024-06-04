@@ -80,7 +80,7 @@ final class WebSocketServiceTests: XCTestCase {
             let responseData = try networkService
                 .upbitPersonalWS?
                 .responseMyOrders
-                .toBlocking(timeout: 5)
+                .toBlocking(timeout: 500)
                 .first()
             
             if let responseData = responseData {
